@@ -1,2 +1,2 @@
-useful commands:
+See https://celiabuira.github.io/maplibre-mediapipe/
 
