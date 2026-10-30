@@ -1,5 +1,5 @@
 import {Map, setWorkerUrl} from 'maplibre-gl';
-import { HandLandmarkerResult, DrawingUtils, HandLandmarker } from '@mediapipe/tasks-vision';
+// import { HandLandmarkerResult, DrawingUtils, HandLandmarker } from '@mediapipe/tasks-vision';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
@@ -65,12 +65,14 @@ async function startCamera() {
 startCamera();
 
 
+/*
 
 // Create task for image file processing:
 const vision = await FilesetResolver.forVisionTasks(
   // path/to/wasm/root
   "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm "
 );
+
 
 const gestureRecognizer = await GestureRecognizer.createFromOptions(vision, {
   baseOptions: {
@@ -97,3 +99,4 @@ function renderLoop() {
 }
 
 renderLoop();
+*/

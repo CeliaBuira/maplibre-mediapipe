@@ -19,18 +19,18 @@
     #status { margin: .75rem 0; color: #9ca3af; }
     .stage { position: relative; width: 640px; max-width: 100%; }
 
-        video, canvas { width: 100%; display: block; border-radius: 8px; transform: scaleX(-1); mirror }
-
+        #video, #overlay { width: 100%; display: block; border-radius: 8px; transform: scaleX(-1); mirror }
+        /* map { width: 150px; height: 100px; } */
     </style>
 </head>
 <body>
-<!-- <div id="map"></div> -->
-  <div class="stage">
-    <video id="video" autoplay playsinline muted></video>
-    <canvas id="overlay"></canvas>
-  </div>
+    <div class="stage"> 
+        <video id="video" autoplay playsinline muted></video> 
+        <canvas id="overlay"></canvas> 
+    </div> 
+    <div id="map"></div>
 
- <script type="module" src="/src/main.js"></script>
+ <script type="module" src="/src/main.ts"></script>
 
 </body>
 </html>
