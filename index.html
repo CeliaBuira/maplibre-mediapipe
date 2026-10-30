@@ -55,11 +55,10 @@
             display: inline-block;
             width: clamp(180px, 22vw, 360px);
             aspect-ratio: 4 / 3;
-            
             border-radius: 20px;
             overflow: hidden;
         }
-
+        #underlay,
         #video,
         #overlay {
             position: absolute;
@@ -69,12 +68,17 @@
             /* mirror: true; */
         }
 
+        #underlay {
+            transform: scaleX(1);
+        }
+
         /* map { width: 150px; height: 100px; } */
     </style>
 </head>
 
 <body>
     <div class="stage">
+        <canvas id="underlay"></canvas>
         <video id="video" autoplay playsinline muted></video>
         <canvas id="overlay"></canvas>
     </div>

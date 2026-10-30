@@ -32,7 +32,7 @@ function dist(
 
 // ersatz of p5.js circle
 function circle(x: number, y: number, r: number) {
-  if (!ctx) {return;}
+  if (!ctx) { return; }
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2);
   ctx.fill();
@@ -46,13 +46,31 @@ function remap(value: number, start1: number, stop1: number, start2: number, sto
 const map = new Map({
   container: 'map', // container id
   style: 'https://tiles.openfreemap.org/styles/liberty', // style URL
-  center: [ 5.372, 43.296], // starting position [lng, lat]
+  center: [5.372, 43.296], // starting position [lng, lat]
   zoom: 6.5, // starting zoom
   maplibreLogo: true
 });
 
 
 const video = document.getElementById("video") as HTMLVideoElement;
+
+const canvasUnderlay = document.getElementById("underlay") as HTMLCanvasElement;
+const ctxUnderlay = canvasUnderlay.getContext("2d");
+if (!ctxUnderlay) {
+  throw new Error("Failed to get 2D context for underlay");
+}
+
+ctxUnderlay.fillStyle = "white";
+ctxUnderlay.fillRect(0, 0, canvasUnderlay.width, canvasUnderlay.height);
+
+ctxUnderlay.fillStyle = "black";
+ctxUnderlay.font = "bold 10px";
+ctxUnderlay.textAlign = "center";
+ctxUnderlay.textBaseline = "middle";
+
+ctxUnderlay.fillText("Enable your camera to continue", canvasUnderlay.width / 2, canvasUnderlay.height / 2)
+ctxUnderlay.fillText("Then start waving your hand and fist across the scene", canvasUnderlay.width / 2, canvasUnderlay.height / 2 + 20);
+
 
 const canvas = document.getElementById("overlay") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d");
@@ -61,10 +79,10 @@ if (!ctx) {
 }
 
 ctx.fillStyle = "rgb(200 0 0)";
-ctx.fillRect(10, 10, 50, 50);
+ctx.fillRect(10, 10, 5, 5);
 
 ctx.fillStyle = "rgb(0 0 200 / 50%)";
-ctx.fillRect(30, 30, 50, 50);
+ctx.fillRect(12, 12, 5, 5);
 
 
 console.log("Starting camera...");
@@ -143,7 +161,7 @@ async function startCamera() {
 
   // Detection loop
   function detect() {
-    if (!ctx) {return;}
+    if (!ctx) { return; }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -171,8 +189,8 @@ async function startCamera() {
     const handLandmarks = results.landmarks[0];
 
     if (!handLandmarks) {
-        requestAnimationFrame(detect);
-        return;
+      requestAnimationFrame(detect);
+      return;
     }
     // Double check that the name and index are correct when uncommenting
     let WRIST = handLandmarks[0]; // console.log("Wrist coordinates:", WRIST);
@@ -206,8 +224,8 @@ async function startCamera() {
     //     TIP: Fingertip
 
     if (!WRIST || !MIDDLE_FINGER_MCP) {
-        requestAnimationFrame(detect);
-        return;
+      requestAnimationFrame(detect);
+      return;
     }
 
     let palmX = lerp(WRIST.x, MIDDLE_FINGER_MCP.x, 0.5);
@@ -239,7 +257,7 @@ async function startCamera() {
       accumulatedPanY = 0;
       console.log("FIST DETECTED!");
 
-      
+
     }
     else if (!isFist && lastIsFist) {
       isDragging = false;
@@ -274,7 +292,7 @@ async function startCamera() {
 
         console.log("accumulatedPanX:", accumulatedPanX)
         console.log("accumulatedPanY:", accumulatedPanY);
-        
+
         let panPixelX = remap(accumulatedPanX, -1, 1, -containerRect.width, containerRect.width);
         let panPixelY = remap(accumulatedPanY, -1, 1, -containerRect.height, containerRect.height);
 
