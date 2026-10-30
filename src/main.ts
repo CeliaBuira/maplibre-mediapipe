@@ -14,27 +14,27 @@ setWorkerUrl(workerUrl);
 
 // ersatz of p5.js lerp
 function lerp(start: number, end: number, t: number): number {
-    return start + (end - start) * t;
+  return start + (end - start) * t;
 }
 
 // ersatz of p5.js dist
 function dist(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
 ): number {
-    const dx = x2 - x1;
-    const dy = y2 - y1;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
 
-    return Math.sqrt(dx * dx + dy * dy);
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
 // ersatz of p5.js circle
 function circle(x: number, y: number, r: number) {
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 const map = new Map({
@@ -115,9 +115,9 @@ async function startCamera() {
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
 
-  let lastIsFist : boolean;
-  let lastPalmX : number;
-  let lastPalmY : number;
+  let lastIsFist: boolean = false;
+  let lastPalmX: number;
+  let lastPalmY: number;
 
   console.log("video height:", video.videoHeight);
   const drawingUtils = new DrawingUtils(ctx);
@@ -139,16 +139,16 @@ async function startCamera() {
     );
 
     if (results.landmarks.length > 0) {
-     console.log("Detection results:", results);
+      console.log("Detection results:", results);
     }
     else {
       console.log("No hands detected.");
       requestAnimationFrame(detect);
-      return; 
+      return;
     }
-    
+
     // Double check that the name and index are correct when uncommenting
-    let WRIST = results.landmarks[0][0];  console.log("Wrist coordinates:", WRIST);
+    let WRIST = results.landmarks[0][0]; console.log("Wrist coordinates:", WRIST);
     // let THUMB_CMC = results.landmarks[0][1];
     // let THUMB_MCP = results.landmarks[0][2];
     // let THUMB_IP = results.landmarks[0][3];
@@ -171,7 +171,7 @@ async function startCamera() {
     // let PINKY_TIP = results.landmarks[0][20];
 
 
-      // Friendly reminder to myself (source llm)
+    // Friendly reminder to myself (source llm)
     //     MCP: Metacarpophalangeal Joint aka Base knuckle
     //     PIP: Proximal Interphalangeal Joint akaMiddle knuckle
     //     DIP: Distal Interphalangeal Joint aka Last finger joint
@@ -179,10 +179,10 @@ async function startCamera() {
 
     let palmX = lerp(WRIST.x, MIDDLE_FINGER_MCP.x, 0.5);
     let palmY = lerp(WRIST.y, MIDDLE_FINGER_MCP.y, 0.5);
+    // console.log("Palm coordinates:", { x: palmX, y: palmY });
 
     let palm_size = dist(WRIST.x, WRIST.y, MIDDLE_FINGER_MCP.x, MIDDLE_FINGER_MCP.y);
 
-    console.log("Palm coordinates:", { x: palmX, y: palmY });
 
 
 
@@ -193,22 +193,38 @@ async function startCamera() {
 
 
     let avg = dist_from_palm.reduce((a, b) => a + b, 0) / dist_from_palm.length;
-    let isFist : boolean = avg < 0.6;
+    let isFist: boolean = avg < 0.6;
 
+    // console.log("avg:", avg);
+    console.log("Is fist:", isFist);
+
+    let isDragging = false;
     if (isFist && !lastIsFist) {
-      console.log("Fist detected!");
+      isDragging = true;
+      console.log("FIST DETECTED!");
     }
     if (!isFist && lastIsFist) {
-      console.log("Fist released!");
+      isDragging = false;
+      console.log("FIST RELEASED!");
     }
 
+    console.log("Is dragging:", isDragging);
+    if (isFist) {
+      let panX = palmX - lastPalmX;
+      let panY = palmY - lastPalmY;
+
+
+
+      console.log("Pan:", { x: panX, y: panY });
+      let scaleX = 30000
+      let scaleY = 30000
+      map.panBy([panX * scaleX, panY * scaleY]);
+    }
 
     lastIsFist = isFist;
     lastPalmX = palmX;
     lastPalmY = palmY;
 
-    console.log("avg:", avg);
-    console.log("Is fist:", isFist);
 
     // Draw detected hands
     for (const landmarks of results.landmarks) {
