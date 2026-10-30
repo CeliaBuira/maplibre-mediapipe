@@ -293,8 +293,10 @@ async function startCamera() {
         console.log("accumulatedPanX:", accumulatedPanX)
         console.log("accumulatedPanY:", accumulatedPanY);
 
+        let canvasRatio = canvas.width / canvas.height;
+
         let panPixelX = remap(accumulatedPanX, -1, 1, -containerRect.width, containerRect.width);
-        let panPixelY = remap(accumulatedPanY, -1, 1, -containerRect.height, containerRect.height);
+        let panPixelY = remap(accumulatedPanY * canvasRatio, -1, 1, -containerRect.height, containerRect.height);
 
         map.panBy([panPixelX, -panPixelY]);
         // point.y += remap(accumulatedPanY, -1, 1, containerRect.bottom, containerRect.top);
