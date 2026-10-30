@@ -139,6 +139,9 @@ async function startCamera() {
     video.onloadeddata = () => resolve();
   });
 
+  canvasUnderlay.style.display = "none";
+
+
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
 
