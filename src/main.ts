@@ -37,11 +37,16 @@ function circle(x: number, y: number, r: number) {
   ctx.fill();
 }
 
+// ersatz of p5.js remap
+function remap(value: number, start1: number, stop1: number, start2: number, stop2: number): number {
+  return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
+}
+
 const map = new Map({
   container: 'map', // container id
-  style: 'https://demotiles.maplibre.org/style.json', // style URL
-  center: [0, 0], // starting position [lng, lat]
-  zoom: 1, // starting zoom
+  style: 'https://tiles.openfreemap.org/styles/liberty', // style URL
+  center: [ 5.372, 43.296], // starting position [lng, lat]
+  zoom: 6.5, // starting zoom
   maplibreLogo: true
 });
 
@@ -119,6 +124,12 @@ async function startCamera() {
   let lastPalmX: number;
   let lastPalmY: number;
 
+  let accumulatedPanX = 0;
+  let accumulatedPanY = 0;
+
+  let isDragging = false;
+
+
   console.log("video height:", video.videoHeight);
   const drawingUtils = new DrawingUtils(ctx);
 
@@ -148,7 +159,7 @@ async function startCamera() {
     }
 
     // Double check that the name and index are correct when uncommenting
-    let WRIST = results.landmarks[0][0]; console.log("Wrist coordinates:", WRIST);
+    let WRIST = results.landmarks[0][0]; // console.log("Wrist coordinates:", WRIST);
     // let THUMB_CMC = results.landmarks[0][1];
     // let THUMB_MCP = results.landmarks[0][2];
     // let THUMB_IP = results.landmarks[0][3];
@@ -169,6 +180,7 @@ async function startCamera() {
     // let PINKY_PIP = results.landmarks[0][18];
     // let PINKY_DIP = results.landmarks[0][19];
     // let PINKY_TIP = results.landmarks[0][20];
+
 
 
     // Friendly reminder to myself (source llm)
@@ -197,28 +209,77 @@ async function startCamera() {
 
     // console.log("avg:", avg);
     console.log("Is fist:", isFist);
+    console.log("lastIsFist:", lastIsFist);
 
-    let isDragging = false;
+
     if (isFist && !lastIsFist) {
       isDragging = true;
+      accumulatedPanX = 0;
+      accumulatedPanY = 0;
       console.log("FIST DETECTED!");
+
+      
     }
-    if (!isFist && lastIsFist) {
+    else if (!isFist && lastIsFist) {
       isDragging = false;
       console.log("FIST RELEASED!");
     }
 
+    if (isDragging && !isFist) {
+      // in some case e.g you went out of the camera view while dragging you donkey
+      // so stop dragging 
+      isDragging = false;
+    }
+
     console.log("Is dragging:", isDragging);
-    if (isFist) {
+    if (isDragging) {
       let panX = palmX - lastPalmX;
       let panY = palmY - lastPalmY;
 
+      accumulatedPanX += panX;
+      accumulatedPanY += panY;
+
+      if (Math.abs(accumulatedPanX) > 0.1 || Math.abs(accumulatedPanY) > 0.1) {
+        console.log("Accumulated Pan:", { x: accumulatedPanX, y: accumulatedPanY });
 
 
-      console.log("Pan:", { x: panX, y: panY });
-      let scaleX = 30000
-      let scaleY = 30000
-      map.panBy([panX * scaleX, panY * scaleY]);
+
+
+        const center = map.getCenter();
+        const point = map.project(center);
+
+
+        const containerRect = map.getContainer().getBoundingClientRect();
+
+        console.log("accumulatedPanX:", accumulatedPanX)
+        console.log("accumulatedPanY:", accumulatedPanY);
+        
+        let panPixelX = remap(accumulatedPanX, -1, 1, -containerRect.width, containerRect.width);
+        let panPixelY = remap(accumulatedPanY, -1, 1, -containerRect.height, containerRect.height);
+
+        map.panBy([panPixelX, -panPixelY]);
+        // point.y += remap(accumulatedPanY, -1, 1, containerRect.bottom, containerRect.top);
+
+        // const newCenter = map.unproject(point);
+
+        // map.panTo(newCenter);
+
+        accumulatedPanX = 0;
+        accumulatedPanY = 0;
+
+        // map.easeTo({
+        //   center: newCenter,
+        //   duration: 0
+        // });
+
+      }
+
+
+
+
+      // let scaleX = 30000
+      // let scaleY = 30000
+      // map.panBy([panX * scaleX, panY * scaleY]);
     }
 
     lastIsFist = isFist;
@@ -244,7 +305,7 @@ async function startCamera() {
       });
     }
 
-    if (isFist) {
+    if (isDragging) {
       ctx.fillStyle = "#FF0000";
     }
     else {
