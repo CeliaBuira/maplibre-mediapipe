@@ -32,6 +32,7 @@ function dist(
 
 // ersatz of p5.js circle
 function circle(x: number, y: number, r: number) {
+  if (!ctx) {return;}
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2);
   ctx.fill();
@@ -51,10 +52,13 @@ const map = new Map({
 });
 
 
-const video = document.getElementById("video");
+const video = document.getElementById("video") as HTMLVideoElement;
 
-const canvas = document.getElementById("overlay");
+const canvas = document.getElementById("overlay") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d");
+if (!ctx) {
+  throw new Error("Failed to get 2D context");
+}
 
 ctx.fillStyle = "rgb(200 0 0)";
 ctx.fillRect(10, 10, 50, 50);
@@ -131,10 +135,16 @@ async function startCamera() {
 
 
   console.log("video height:", video.videoHeight);
+  if (!ctx) {
+    console.error("Canvas context not found");
+    return;
+  }
   const drawingUtils = new DrawingUtils(ctx);
 
   // Detection loop
   function detect() {
+    if (!ctx) {return;}
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.fillStyle = "rgb(200 0 0)";
@@ -158,28 +168,34 @@ async function startCamera() {
       return;
     }
 
+    const handLandmarks = results.landmarks[0];
+
+    if (!handLandmarks) {
+        requestAnimationFrame(detect);
+        return;
+    }
     // Double check that the name and index are correct when uncommenting
-    let WRIST = results.landmarks[0][0]; // console.log("Wrist coordinates:", WRIST);
-    // let THUMB_CMC = results.landmarks[0][1];
-    // let THUMB_MCP = results.landmarks[0][2];
-    // let THUMB_IP = results.landmarks[0][3];
-    // let THUMB_TIP = results.landmarks[0][4];
-    // let INDEX_FINGER_MCP = results.landmarks[0][5];
-    // let INDEX_FINGER_PIP = results.landmarks[0][6];
-    // let INDEX_FINGER_DIP = results.landmarks[0][7];
-    // let INDEX_FINGER_TIP = results.landmarks[0][8];
-    let MIDDLE_FINGER_MCP = results.landmarks[0][9];
-    // let MIDDLE_FINGER_PIP = results.landmarks[0][10];
-    // let MIDDLE_FINGER_DIP = results.landmarks[0][11];
-    // let MIDDLE_FINGER_TIP = results.landmarks[0][12];
-    // let RING_FINGER_MCP = results.landmarks[0][13];
-    // let RING_FINGER_PIP = results.landmarks[0][14];
-    // let RING_FINGER_DIP = results.landmarks[0][15];
-    // let RING_FINGER_TIP = results.landmarks[0][16];
-    // let PINKY_MCP = results.landmarks[0][17];
-    // let PINKY_PIP = results.landmarks[0][18];
-    // let PINKY_DIP = results.landmarks[0][19];
-    // let PINKY_TIP = results.landmarks[0][20];
+    let WRIST = handLandmarks[0]; // console.log("Wrist coordinates:", WRIST);
+    // let THUMB_CMC = handLandmarks[1];
+    // let THUMB_MCP = handLandmarks[2];
+    // let THUMB_IP = handLandmarks[3];
+    // let THUMB_TIP = handLandmarks[4];
+    // let INDEX_FINGER_MCP = handLandmarks[5];
+    // let INDEX_FINGER_PIP = handLandmarks[6];
+    // let INDEX_FINGER_DIP = handLandmarks[7];
+    // let INDEX_FINGER_TIP = handLandmarks[8];
+    let MIDDLE_FINGER_MCP = handLandmarks[9];
+    // let MIDDLE_FINGER_PIP = handLandmarks[10];
+    // let MIDDLE_FINGER_DIP = handLandmarks[11];
+    // let MIDDLE_FINGER_TIP = handLandmarks[12];
+    // let RING_FINGER_MCP = handLandmarks[13];
+    // let RING_FINGER_PIP = handLandmarks[14];
+    // let RING_FINGER_DIP = handLandmarks[15];
+    // let RING_FINGER_TIP = handLandmarks[16];
+    // let PINKY_MCP = handLandmarks[17];
+    // let PINKY_PIP = handLandmarks[18];
+    // let PINKY_DIP = handLandmarks[19];
+    // let PINKY_TIP = handLandmarks[20];
 
 
 
@@ -188,6 +204,11 @@ async function startCamera() {
     //     PIP: Proximal Interphalangeal Joint akaMiddle knuckle
     //     DIP: Distal Interphalangeal Joint aka Last finger joint
     //     TIP: Fingertip
+
+    if (!WRIST || !MIDDLE_FINGER_MCP) {
+        requestAnimationFrame(detect);
+        return;
+    }
 
     let palmX = lerp(WRIST.x, MIDDLE_FINGER_MCP.x, 0.5);
     let palmY = lerp(WRIST.y, MIDDLE_FINGER_MCP.y, 0.5);
@@ -199,7 +220,7 @@ async function startCamera() {
 
 
 
-    const dist_from_palm = results.landmarks[0].map(landmark => {
+    const dist_from_palm = handLandmarks.map(landmark => {
       return dist(landmark.x, landmark.y, palmX, palmY) / palm_size; // normalize because this change based on the distance from webcam
     });
 
