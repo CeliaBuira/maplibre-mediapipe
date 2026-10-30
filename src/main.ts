@@ -86,26 +86,6 @@ ctx.fillRect(12, 12, 5, 5);
 
 
 console.log("Starting camera...");
-// 2. Start the camera.
-// async function startCamera() {
-//   // startBtn.disabled = true;
-//   try {
-//     video.srcObject = await navigator.mediaDevices.getUserMedia({
-//       video: { width: 640, height: 480 },
-//     });
-//     video.addEventListener("loadeddata", () => {
-//     //   canvas.width = video.videoWidth;
-//     //   canvas.height = video.videoHeight;
-//     //   startBtn.textContent = "Running";
-//     //   requestAnimationFrame(loop);
-//     });
-//   } catch (err) {
-//     console.error(err); 
-//     // statusEl.textContent = `Camera error: ${err.message}`;
-//     // startBtn.disabled = false;
-//   }
-// }
-
 
 async function startCamera() {
 
@@ -250,8 +230,8 @@ async function startCamera() {
     let isFist: boolean = avg < 0.6;
 
     // console.log("avg:", avg);
-    console.log("Is fist:", isFist);
-    console.log("lastIsFist:", lastIsFist);
+    // console.log("Is fist:", isFist);
+    // console.log("lastIsFist:", lastIsFist);
 
 
     if (isFist && !lastIsFist) {
@@ -277,7 +257,7 @@ async function startCamera() {
       map.getCanvas().style.cursor = 'grab';
     }
 
-    console.log("Is dragging:", isDragging);
+    // console.log("Is dragging:", isDragging);
     if (isDragging) {
       let panX = palmX - lastPalmX;
       let panY = palmY - lastPalmY;
@@ -286,7 +266,7 @@ async function startCamera() {
       accumulatedPanY += panY;
 
       if (Math.abs(accumulatedPanX) > 0.1 || Math.abs(accumulatedPanY) > 0.1) {
-        console.log("Accumulated Pan:", { x: accumulatedPanX, y: accumulatedPanY });
+        // console.log("Accumulated Pan:", { x: accumulatedPanX, y: accumulatedPanY });
 
 
 
@@ -297,8 +277,8 @@ async function startCamera() {
 
         const containerRect = map.getContainer().getBoundingClientRect();
 
-        console.log("accumulatedPanX:", accumulatedPanX)
-        console.log("accumulatedPanY:", accumulatedPanY);
+        // console.log("accumulatedPanX:", accumulatedPanX)
+        // console.log("accumulatedPanY:", accumulatedPanY);
 
         let canvasRatio = canvas.width / canvas.height;
 
