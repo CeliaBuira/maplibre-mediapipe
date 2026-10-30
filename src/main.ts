@@ -256,18 +256,22 @@ async function startCamera() {
       accumulatedPanX = 0;
       accumulatedPanY = 0;
       console.log("FIST DETECTED!");
+      map.getCanvas().style.cursor = 'grabbing';
+
 
 
     }
     else if (!isFist && lastIsFist) {
       isDragging = false;
       console.log("FIST RELEASED!");
+      map.getCanvas().style.cursor = 'grab';
     }
 
     if (isDragging && !isFist) {
       // in some case e.g you went out of the camera view while dragging you donkey
       // so stop dragging 
       isDragging = false;
+      map.getCanvas().style.cursor = 'grab';
     }
 
     console.log("Is dragging:", isDragging);
